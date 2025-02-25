@@ -1,4 +1,4 @@
-updated_readme_content = """\
+
 # Backend Projects Repository
 
 Welcome to the **backend-projects** repository! 🚀
