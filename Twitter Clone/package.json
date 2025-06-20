@@ -7,7 +7,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
-  "author": "Sujan Timalsina AKA codewithsuzan",
+  "author": "Sujan Timalsina AKA imsuzan0",
   "license": "ISC",
   "description": "",
   "dependencies": {
