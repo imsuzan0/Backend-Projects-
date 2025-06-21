@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
+// Define the Person schema
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -9,24 +11,12 @@ const userSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  gender: {
-    type: String,
-    enum: ["male", "female", "other"],
-    required: true,
-  },
   email: {
     type: String,
-    match: [
-      /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
-      "Please provide a valid email address",
-    ],
   },
-  phoneNumber: {
+  mobile: {
     type: String,
-match: [
-    /^\d{10}$/, //regex for 10 digits
-    "Phone number must be exactly 10 digits",
-  ],  },
+  },
   address: {
     type: String,
     required: true,
@@ -49,8 +39,38 @@ match: [
     type: Boolean,
     default: false,
   },
-},{
-    timestamps: true
 });
 
-export const User = mongoose.model("User", userSchema);
+userSchema.pre("save", async function (next) {
+  const person = this;
+
+  // Hash the password only if it has been modified (or is new)
+  if (!person.isModified("password")) return next();
+  try {
+    // hash password generation
+    const salt = await bcrypt.genSalt(10);
+
+    // hash password
+    const hashedPassword = await bcrypt.hash(person.password, salt);
+
+    // Override the plain password with the hashed one
+    person.password = hashedPassword;
+    next();
+  } catch (err) {
+    return next(err);
+  }
+});
+
+
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  try {
+    // Use bcrypt to compare the provided password with the hashed password
+    const isMatch = await bcrypt.compare(candidatePassword, this.password);
+    return isMatch;
+  } catch (err) {
+    throw err;
+  }
+};
+
+const User = mongoose.model("User", userSchema);
+export default User;
